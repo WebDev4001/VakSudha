@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Welcome, {{ user.username }}</h1>
+                <a href="{{ url_for('practice') }}" class="btn btn-primary">
+                    Start New Practice
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Progress Summary -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card progress-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Speech Practice</h5>
+                    {% set speech_exercises = progress|selectattr("practice.type", "equalto", "speech")|list %}
+                    <h2 class="display-4">{{ speech_exercises|length }}</h2>
+                    <p class="text-muted">Completed exercises</p>
+                    {% if speech_exercises %}
+                    <p>Average Score: 
+                        {{ (speech_exercises|sum(attribute='score') / speech_exercises|length)|round(1) }}/10
+                    </p>
+                    {% else %}
+                    <p>No speech exercises completed yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card progress-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Gesture Practice</h5>
+                    {% set gesture_exercises = progress|selectattr("practice.type", "equalto", "gesture")|list %}
+                    <h2 class="display-4">{{ gesture_exercises|length }}</h2>
+                    <p class="text-muted">Completed exercises</p>
+                    {% if gesture_exercises %}
+                    <p>Average Score: 
+                        {{ (gesture_exercises|sum(attribute='score') / gesture_exercises|length)|round(1) }}/10
+                    </p>
+                    {% else %}
+                    <p>No gesture exercises completed yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card progress-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Overall Progress</h5>
+                    <div class="progress mb-3" style="height: 20px;">
+                        {% set total_score = progress|sum(attribute='score') %}
+                        {% set max_possible = progress|length * 10 %}
+                        {% if max_possible > 0 %}
+                        {% set percentage = (total_score / max_possible * 100)|round %}
+                        {% else %}
+                        {% set percentage = 0 %}
+                        {% endif %}
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ percentage }}%"
+                             aria-valuenow="{{ percentage }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ percentage }}%
+                        </div>
+                    </div>
+                    <p class="text-muted">Total exercises completed: {{ progress|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Activity</h3>
+                </div>
+                <div class="card-body">
+                    {% if progress %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Exercise</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Score</th>
+                                    <th scope="col">Completed</th>
+                                    <th scope="col">Feedback</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in progress|sort(attribute='completed_at', reverse=true) %}
+                                <tr>
+                                    <td>{{ entry.practice.title }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if entry.practice.type == 'speech' %}primary{% else %}success{% endif %}">
+                                            {{ entry.practice.type|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1" style="height: 10px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ entry.score * 10 }}%"
+                                                     aria-valuenow="{{ entry.score * 10 }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                            <span class="ms-2">{{ entry.score }}/10</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ entry.completed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-placement="left" 
+                                                title="{{ entry.feedback }}">
+                                            View Feedback
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="lead">No practice sessions completed yet.</p>
+                        <a href="{{ url_for('practice') }}" class="btn btn-primary">
+                            Start Your First Practice
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Practice Recommendations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recommended Practice</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 border rounded">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-microphone fa-2x text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5>Speech Practice</h5>
+                                    <p class="mb-0">Practice your speech recognition skills with our interactive exercises.</p>
+                                    <a href="{{ url_for('practice') }}#speech-practice" class="btn btn-outline-primary mt-2">
+                                        Start Speech Practice
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-3 border rounded">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-hand-paper fa-2x text-success"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5>Gesture Practice</h5>
+                                    <p class="mb-0">Learn and practice gesture recognition with real-time feedback.</p>
+                                    <a href="{{ url_for('practice') }}#gesture-practice" class="btn btn-outline-success mt-2">
+                                        Start Gesture Practice
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

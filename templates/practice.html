@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Speech Practice</h3>
+            </div>
+            <div class="card-body" id="speech-practice">
+                <div class="text-center mb-3">
+                    <button id="record-btn" class="record-btn" aria-label="Start/Stop Recording">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <p id="record-status" class="mt-2">Click to start recording</p>
+                </div>
+                <div class="mb-3">
+                    <h5>Live Transcript</h5>
+                    <div id="live-transcript" class="p-3 bg-dark rounded">
+                        Your speech will appear here...
+                    </div>
+                </div>
+                <div id="analysis-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Gesture Practice</h3>
+            </div>
+            <div class="card-body" id="gesture-practice">
+                <div class="text-center mb-3">
+                    <button id="start-gesture" class="btn btn-primary">
+                        Start Gesture Detection
+                    </button>
+                    <button id="stop-gesture" class="btn btn-danger" disabled>
+                        Stop Detection
+                    </button>
+                </div>
+                <div class="position-relative">
+                    <video id="camera-feed" playsinline></video>
+                    <canvas id="gesture-canvas"></canvas>
+                </div>
+                <div class="mt-3">
+                    <h5>Detected Gestures</h5>
+                    <p id="gesture-feedback" class="p-3 bg-dark rounded">
+                        No gestures detected yet...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Practice Exercises</h3>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for exercise in exercises %}
+                    <div class="list-group-item">
+                        <h5 class="mb-1">{{ exercise.title }}</h5>
+                        <p class="mb-1">{{ exercise.description }}</p>
+                        <small class="text-muted">
+                            Difficulty: {{ exercise.difficulty }}
+                            | Type: {{ exercise.type }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/speech.js') }}"></script>
+<script src="{{ url_for('static', filename='js/gesture.js') }}"></script>
+{% endblock %}
