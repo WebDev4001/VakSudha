@@ -15,7 +15,6 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
 
 # Configure the database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///app.db")
@@ -30,6 +29,42 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 db.init_app(app)
+
+def init_settings():
+    with app.app_context():
+        # Get raw connection from SQLAlchemy engine
+        with db.engine.connect() as connection:
+            # Create settings table if it doesn't exist
+            connection.execute(db.text("""
+                CREATE TABLE IF NOT EXISTS settings (
+                    key VARCHAR(50) PRIMARY KEY,
+                    value VARCHAR(500)
+                )
+            """))
+            
+            # Insert or update secret key
+            if 'sqlite' in str(db.engine.url):
+                # SQLite syntax
+                connection.execute(db.text("""
+                    INSERT OR REPLACE INTO settings (key, value) 
+                    VALUES ('SECRET_KEY', :secret_key)
+                """), {'secret_key': os.getenv('SECRET_KEY', 'your_very_secret_key')})
+            else:
+                # PostgreSQL syntax
+                connection.execute(db.text("""
+                    INSERT INTO settings (key, value) 
+                    VALUES ('SECRET_KEY', :secret_key)
+                    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+                """), {'secret_key': os.getenv('SECRET_KEY', 'your_very_secret_key')})
+            
+            # Fetch the secret key
+            result = connection.execute(db.text("SELECT value FROM settings WHERE key = 'SECRET_KEY'"))
+            secret_key = result.scalar()
+            
+            connection.commit()
+            
+        # Update Flask app config with the secret key from database
+        app.config['SECRET_KEY'] = secret_key
 
 # Import routes after app initialization
 from models import User, Practice, Progress
@@ -123,6 +158,10 @@ def internal_error(error):
     logging.error(f"Internal server error: {str(error)}")
     return render_template('index.html'), 500
 
-# Create database tables
+# Create database tables and initialize settings
 with app.app_context():
     db.create_all()
+    init_settings()
+
+if __name__ == '__main__':
+    app.run(debug=True)
