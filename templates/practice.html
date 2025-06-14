@@ -82,4 +82,50 @@
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename='js/speech.js') }}"></script>
 <script src="{{ url_for('static', filename='js/gesture.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Speech Analysis Integration
+        const speechAnalyzer = new SpeechAnalyzer();
+        const recordBtn = document.getElementById('record-btn');
+        const recordStatus = document.getElementById('record-status');
+
+        if (recordBtn) {
+            recordBtn.addEventListener('click', () => {
+                if (speechAnalyzer.isRecording) {
+                    speechAnalyzer.stopRecording();
+                } else {
+                    speechAnalyzer.startRecording();
+                }
+            });
+        } else {
+            console.error('#record-btn not found');
+        }
+
+        // Gesture Detection Integration
+        const gestureDetector = new GestureDetector();
+        const startGestureBtn = document.getElementById('start-gesture');
+        const stopGestureBtn = document.getElementById('stop-gesture');
+
+        if (startGestureBtn && stopGestureBtn) {
+            startGestureBtn.addEventListener('click', async () => {
+                try {
+                    await gestureDetector.initialize(); // Initialize and start detection
+                    startGestureBtn.disabled = true;
+                    stopGestureBtn.disabled = false;
+                } catch (error) {
+                    console.error("Error starting gesture detection:", error);
+                    // Error is shown by gestureDetector.showError
+                }
+            });
+
+            stopGestureBtn.addEventListener('click', () => {
+                gestureDetector.stopDetection();
+                startGestureBtn.disabled = false;
+                stopGestureBtn.disabled = true;
+            });
+        } else {
+            console.error('#start-gesture or #stop-gesture button not found');
+        }
+    });
+</script>
 {% endblock %}

@@ -37,7 +37,7 @@
         </div>
     </nav>
 
-    <div id="alerts" class="container mt-3">
+    <div id="flash-alerts-container" class="container mt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -51,6 +51,7 @@
     </div>
 
     <main class="container my-4">
+        <div id="alerts"></div> {# For JavaScript alerts #}
         {% block content %}{% endblock %}
     </main>
 

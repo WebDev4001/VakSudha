@@ -147,16 +147,66 @@ def save_progress():
         logging.error(f"Error saving progress: {str(e)}")
         return jsonify({'error': 'Failed to save progress'}), 500
 
+@app.route('/api/exercises', methods=['GET'])
+@login_required
+def get_exercises():
+    exercises = Practice.query.all()
+    exercise_list = []
+    for exercise in exercises:
+        exercise_list.append({
+            'id': exercise.id,
+            'title': exercise.title,
+            'description': exercise.description,
+            'type': exercise.type,
+            'difficulty': exercise.difficulty
+        })
+    return jsonify(exercise_list)
+
+@app.route('/api/user/<int:user_id>/progress', methods=['GET'])
+@login_required
+def get_user_progress(user_id):
+    if current_user.id != user_id:
+        # Basic check: users can only access their own progress.
+        # Future enhancement: allow admins to access any user's progress.
+        return jsonify({'error': 'Unauthorized access to progress data.'}), 403
+
+    # Query Progress and join with Practice to get exercise titles
+    user_progress_records = db.session.query(
+        Progress.exercise_id,
+        Practice.title.label('exercise_title'),
+        Progress.score,
+        Progress.feedback,
+        Progress.completed_at
+    ).join(Practice, Progress.exercise_id == Practice.id).filter(Progress.user_id == user_id).all()
+
+    progress_list = []
+    if user_progress_records:
+        for record in user_progress_records:
+            progress_list.append({
+                'exercise_id': record.exercise_id,
+                'exercise_title': record.exercise_title,
+                'score': record.score,
+                'feedback': record.feedback,
+                'completed_at': record.completed_at.isoformat() if record.completed_at else None
+            })
+
+    # Check if the user exists (even if they have no progress, an empty list is valid)
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found.'}), 404
+
+    return jsonify(progress_list)
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('index.html'), 404
+    return render_template('errors/404.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
     logging.error(f"Internal server error: {str(error)}")
-    return render_template('index.html'), 500
+    return render_template('errors/500.html'), 500
 
 # Create database tables and initialize settings
 with app.app_context():
