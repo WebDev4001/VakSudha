@@ -6,18 +6,40 @@ The Accessibility Learning Platform is a web application designed to help users 
 
 ## Features
 
-*   **User Authentication:** Secure user registration and login system.
-*   **Speech Practice:** Allows users to record their speech.
-    *   Utilizes OpenAI API for speech analysis, providing scores and constructive feedback.
-    *   Live transcription of speech.
-*   **Gesture Practice:** Enables users to practice gestures using their webcam.
-    *   Uses MediaPipe for real-time gesture detection and visualization.
-    *   Feedback on detected gestures.
-*   **Progress Tracking:** Users can view their scores and feedback from completed exercises on a personal dashboard.
-*   **Interactive Exercises:** A list of predefined speech and gesture exercises with varying difficulty.
-*   **API for Chatbot Integration:** Endpoints to fetch exercises and user progress, allowing for potential chatbot interactions.
-*   **Custom Error Pages:** User-friendly 404 and 500 error pages.
-*   **Enhanced User Interface:** Modern look and feel with smooth animations and transitions for improved interactivity.
+The Accessibility Learning Platform offers a rich set of features designed for an effective and engaging learning experience:
+
+**Core Practice Functionalities:**
+*   **Speech Practice:**
+    *   Record audio directly in the browser.
+    *   See live transcription of your speech.
+    *   Receive AI-powered analysis from OpenAI, including a score, detailed feedback, and areas for improvement.
+*   **Gesture Practice:**
+    *   Utilize your webcam for real-time gesture recognition powered by MediaPipe.
+    *   Visual feedback with hand landmark overlays.
+    *   Basic analysis of performed gestures.
+*   **Interactive Exercises:** Access a list of predefined speech and gesture exercises with varying difficulty levels.
+
+**User Experience & Interface:**
+*   **Personalized Dashboard:**
+    *   Track your overall progress for both speech and gesture exercises.
+    *   View average scores and the number of completed exercises.
+    *   Review a log of recent activities, including scores and specific feedback for each completed session.
+    *   Get recommendations for further practice.
+*   **Modern & Responsive UI:**
+    *   Clean, intuitive interface with a dark theme for better visual comfort.
+    *   Responsive design adapting to desktops, tablets, and mobile devices.
+    *   Smooth animations, transitions, and Font Awesome icons enhance interactivity and visual appeal.
+*   **User-Friendly Error Handling:** Custom pages for common errors (e.g., Page Not Found, Server Error) to guide users.
+
+**Account Management & Data:**
+*   **Secure User Authentication:** Reliable login and logout functionality to protect user data and progress.
+*   **Persistent Progress Tracking:** All practice scores and feedback are saved, allowing users to monitor their improvement over time.
+
+**Extensibility & Technical Foundation:**
+*   **API for External Integration:** RESTful API endpoints (e.g., `/api/exercises`, `/api/user/<id>/progress`, `/api/analyze-speech`) available for integrating with chatbots or other external tools (requires authentication).
+*   **Robust Backend:** Built with Python, Flask, and SQLAlchemy, ensuring a stable and maintainable platform.
+*   **Configurable Setup:** Supports SQLite by default and can be configured for PostgreSQL. Clear guidance on environment variable setup for API keys and application settings.
+*   **Tested Reliability:** Includes a suite of unit tests to ensure core functionalities work as expected.
 
 ## Tech Stack
 
@@ -85,24 +107,20 @@ The Accessibility Learning Platform is a web application designed to help users 
         *   For PostgreSQL, it might look like: `postgresql://username:password@host:port/database_name`
         If you change this, you might need to install additional database drivers (e.g., `psycopg2-binary` for PostgreSQL).
 
-    *If using a `.env` file, ensure your application loads it (e.g., using `python-dotenv` library, which should be in `requirements.txt` if used by the app, or you might need to add it: `pip install python-dotenv` and load it in `app.py`). The current application structure might rely on these being system environment variables if `python-dotenv` is not explicitly used for loading.*
+    *Note on `.env` files: This application does not automatically load environment variables from a `.env` file (e.g., using `python-dotenv`). If you choose to use a `.env` file, you must ensure it is loaded by your environment or by modifying the application to include a library like `python-dotenv`.*
 
 ## Running the Application
 
-1.  **Initialize the Database (if not done automatically by the app):**
-    The application is configured to create database tables on startup if they don't exist.
+1.  **Initialize the Database:**
+    The application is configured to create database tables on startup if they don't exist, so this step is typically automatic.
 
 2.  **Run the Flask Development Server:**
-    Ensure your environment variables are set and your virtual environment is activated.
-    The main application script is assumed to be `app.py` or `main.py`. If it's `app.py`:
-    ```bash
-    python app.py
-    ```
-    Or, if you have a `main.py` that imports and runs the app:
+    Ensure your environment variables are set (as system environment variables or loaded via your preferred method if using `.env` files) and your virtual environment is activated.
+    To run the application, use:
     ```bash
     python main.py
     ```
-    *(Adjust the command based on your main application script name.)*
+    This script is configured to run the Flask development server. Alternatively, if `main.py` is not used, you might run `python app.py` directly if `app.run()` is called within it.
 
 3.  **Access the Application:**
     Open your web browser and go to:
@@ -128,30 +146,49 @@ To run the automated unit tests:
 The application provides the following API endpoints, primarily for potential chatbot or external tool integration. These endpoints generally require user authentication.
 
 *   `GET /api/exercises`: Retrieves a list of all available practice exercises.
-*   `GET /api/user/<user_id>/progress`: Retrieves the progress records for a specific user.
+*   `GET /api/user/<user_id>/progress`: Retrieves the progress records for the specified `user_id`.
 *   `POST /api/save-progress`: Saves a user's progress for an exercise.
 *   `POST /api/analyze-speech`: Analyzes provided speech text using OpenAI (requires `OPENAI_API_KEY`).
 
-## Directory Structure (Simplified)
+## Directory Structure
+
+The project is organized as follows:
 
 ```
 .
-├── app.py                # Main Flask application file (or main.py)
-├── requirements.txt      # Project dependencies
-├── static/               # Static assets (CSS, JavaScript, images)
+├── .replit                 # Configuration for Replit environment (if used)
+├── app.py                  # Main Flask application file: defines routes, app logic.
+├── main.py                 # Entry point to run the Flask application.
+├── models.py               # SQLAlchemy database models (User, Practice, Progress).
+├── requirements.txt        # Python package dependencies for the project.
+├── instance/               # Instance-specific data, not version controlled by default.
+│   └── app.db              # SQLite database file (default setup).
+├── static/                 # Static assets served directly to the client.
 │   ├── css/
+│   │   └── custom.css      # Custom stylesheets for the application.
 │   └── js/
-├── templates/            # HTML templates
-│   ├── errors/           # Custom error pages (404.html, 500.html)
-│   └── ...               # Other HTML files (base.html, index.html, etc.)
-├── tests/                # Unit tests
-│   ├── __init__.py
-│   └── test_app.py
-├── utils/                # Utility modules
-│   └── openai_helper.py  # OpenAI API related functions
-├── models.py             # SQLAlchemy database models
-└── README.md             # This file
+│       ├── app.js          # General frontend JavaScript (e.g., event listeners, UI interactions).
+│       ├── gesture.js      # JavaScript for gesture detection using MediaPipe.
+│       └── speech.js       # JavaScript for speech recognition and handling.
+├── templates/              # HTML templates rendered by Flask.
+│   ├── base.html           # Base template with common layout (navbar, footer).
+│   ├── dashboard.html      # User dashboard page.
+│   ├── index.html          # Homepage / Login page.
+│   ├── practice.html       # Page for speech and gesture practice exercises.
+│   └── errors/             # Custom error page templates.
+│       ├── 404.html        # Template for "Page Not Found" errors.
+│       └── 500.html        # Template for "Internal Server Error" errors.
+├── tests/                  # Contains all unit tests for the application.
+│   ├── __init__.py         # Makes 'tests' a Python package.
+│   └── test_app.py         # Main file for application unit tests.
+├── utils/                  # Utility modules and helper functions.
+│   └── openai_helper.py    # Helper functions for interacting with the OpenAI API.
+├── pyproject.toml          # Python project configuration (e.g., for build systems, linters).
+├── replit.nix              # Configuration for Replit's Nix environment (if used).
+├── uv.lock                 # Lock file for `uv` package manager (if used).
+└── README.md               # This file.
 ```
+*Note: `__pycache__/`, `generated-icon.png`, and other similar files are typically not included in the primary project structure documentation as they are auto-generated or artifacts.*
 
 ## Contributing
 
