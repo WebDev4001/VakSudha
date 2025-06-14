@@ -17,6 +17,7 @@ The Accessibility Learning Platform is a web application designed to help users 
 *   **Interactive Exercises:** A list of predefined speech and gesture exercises with varying difficulty.
 *   **API for Chatbot Integration:** Endpoints to fetch exercises and user progress, allowing for potential chatbot interactions.
 *   **Custom Error Pages:** User-friendly 404 and 500 error pages.
+*   **Enhanced User Interface:** Modern look and feel with smooth animations and transitions for improved interactivity.
 
 ## Tech Stack
 
@@ -25,7 +26,7 @@ The Accessibility Learning Platform is a web application designed to help users 
 *   **AI/ML:**
     *   OpenAI API (for speech analysis)
     *   Google MediaPipe (for gesture detection)
-*   **Frontend:** HTML, CSS, JavaScript, Bootstrap
+*   **Frontend:** HTML, CSS, JavaScript, Bootstrap, Font Awesome
 *   **Testing:** Python `unittest` module
 
 ## Setup and Installation

@@ -103,3 +103,90 @@
         max-width: 100%;
     }
 }
+
+/* --- Animations and Transitions --- */
+
+/* Navbar Links */
+.navbar-nav .nav-link {
+    transition: color 0.2s ease-in-out;
+    position: relative; /* For potential future pseudo-element animations like underline */
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+    color: var(--bs-light); /* Brighter for dark theme */
+}
+
+/* Standard Buttons */
+.btn {
+    transition: background-color 0.2s ease-in-out,
+                border-color 0.2s ease-in-out,
+                color 0.2s ease-in-out,
+                transform 0.2s ease-in-out,
+                box-shadow 0.2s ease-in-out; /* Added box-shadow transition */
+}
+
+.btn:hover, .btn:focus {
+    transform: translateY(-2px);
+    /* Applying a consistent shadow, slightly more pronounced for dark theme */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Specific button types if Bootstrap's own hover is not sufficient (usually it is) */
+/* Example: .btn-primary:hover { ... } */
+
+/* Form Inputs */
+.form-control {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Cards and Feature Sections */
+.card,
+.feature-item { /* Updated selector for feature sections in index.html */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover,
+.feature-item:hover { /* Updated selector for feature sections in index.html */
+    transform: translateY(-4px); /* Slightly more lift */
+    /* Using a slightly more diffused shadow for dark theme */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Overriding progress-card hover to be consistent with general card hover */
+.progress-card:hover {
+    transform: translateY(-4px); /* Consistent lift */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Consistent shadow */
+}
+
+
+/* Table Hover Effect */
+.table-hover tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
+/* Bootstrap handles the actual bg color change, this just smooths it */
+
+/* List Group Items */
+.list-group-item {
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+/*
+  Bootstrap's .list-group-item-action provides hover/focus styles.
+  If that class is used on the items, this will smooth its transition.
+  If not, this provides a fallback hover effect for generic .list-group-item.
+*/
+.list-group-item:hover, .list-group-item:focus {
+    /* A subtle change for dark theme. var(--bs-body-hover-bg) might be available in BS 5.3+ */
+    /* For BS 5.2 or generic dark theme, a slightly lighter shade of the background. */
+    /* Assuming list group items are on a dark background like --bs-dark or --bs-body-bg */
+    background-color: var(--bs-tertiary-bg); /* bs-tertiary-bg is often good for hover on dark */
+    /* color: var(--bs-light); /* Ensure text remains readable */
+}
+
+/* Ensure custom focus style remains for list-group-items if they are focusable */
+.list-group-item:focus {
+    outline: 3px solid var(--bs-info) !important; /* Consistent with global focus */
+    outline-offset: 0px; /* Adjust offset for list items */
+    /* background-color: var(--bs-tertiary-bg); /* Keep hover bg on focus */
+}
